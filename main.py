@@ -7,22 +7,29 @@ from algorithm import AdaOptControl
 
 
 if __name__ == '__main__':
-    env = VanDerPolOscillator(0.1)
-    actor = VanDerPolOscillatorActor()
-    critic = VanDerPolOscillatorCritic()
+    integration_method = 'rk4'
+    # env = VanDerPolOscillator()
+    # actor = VanDerPolOscillatorActor(alpha=2.)
+    # critic = VanDerPolOscillatorCritic(alpha=10.)
 
-    # env = VanDerPolOscillator(0.1)
-    # actor = VanDerPolOscillatorActor()
-    # critic = VanDerPolOscillatorCritic()
+    env = PowerPlantSystem(integration_method)
+    actor = PowerPlantSystemActor(integration_method)
+    critic = PowerPlantSystemCritic(integration_method)
 
-    x_history, u_history = AdaOptControl(env, actor, critic).propogate(t_min=0, t_max=20, h=0.1)
+    t, x_history, u_history, critic_w_history = AdaOptControl(env, actor, critic).propogate(t_min=0, t_max=3, h=0.001)
 
-    plt.figure()
-    plt.scatter([i[0] for i in x_history], [i[1] for i in x_history])
-    plt.show()
+    plt.rcParams.update({'font.size': 22})
 
-    plt.figure()
-    plt.plot(u_history)
-    plt.show()
+    # fig, ax = plt.subplots(3, 1, figsize=(15, 15))
+    # ax[0].scatter(x_history[:, 0], x_history[:, 1])
+    # ax[1].plot(t, u_history)
+    # ax[2].plot(t, critic_w_history)
 
-    print(critic.W)
+    fig, ax = plt.subplots(5, 1, figsize=(25, 15))
+    ax[0].plot(t, x_history[1:, 0])
+    ax[1].plot(t, x_history[1:, 1])
+    ax[2].plot(t, x_history[1:, 2])
+    ax[3].plot(t, u_history)
+    ax[4].plot(t, critic_w_history)
+
+    fig.show()

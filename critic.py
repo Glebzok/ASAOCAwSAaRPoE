@@ -31,11 +31,12 @@ class Critic(nn.Module):
 
             return W_dot
 
-    def __init__(self, N, alpha):
+    def __init__(self, N, alpha, integration_method):
         super().__init__()
         self.alpha = alpha
         self.N = N
-        self.W = torch.rand((N, 1))
+        self.integration_method = integration_method
+        self.W = torch.rand((N, 1))# / 100
         self.omega = []
         self.q = []
         self.r_s = []
@@ -63,7 +64,7 @@ class Critic(nn.Module):
         # print(omega_t, q_t, r_s_t)
         # print(self.W)
         self.W = odeint(self.RHS(self.alpha, omega_t, q_t, r_s_t, self.omega, self.q, self.r_s),
-                        self.W, torch.tensor([0., h]))[-1]
+                        self.W, torch.tensor([0., h]), method=self.integration_method)[-1]
 
         return omega_t, q_t, r_s_t
 
@@ -79,20 +80,21 @@ class Critic(nn.Module):
 
 
 class VanDerPolOscillatorCritic(Critic):
-    def __init__(self):
-        super().__init__(N=3, alpha=10)
+    def __init__(self, integration_method, N=3, alpha=10):
+        super().__init__(N=N, alpha=alpha, integration_method=integration_method)
+        # self.W = torch.tensor([2.4953, 0.9991, 2.2225]).view(-1, 1)
 
     def phi(self, x):
-        return torch.tensor([x[0] ** 2, x[0] * x[1], x[1] ** 2]).T
+        return torch.tensor([x[0]**2, x[0] * x[1], x[1]**2]).T
 
     def phi_grad(self, x):
-        return torch.tensor([[2 * x[0], x[1], 0],
-                             [0, x[0], 2 * x[1]]]).T
+        return torch.tensor([[2*x[0], x[1],         0],
+                             [0,      x[0], 2 * x[1]]]).T
 
 
 class PowerPlantSystemCritic(Critic):
-    def __init__(self):
-        super().__init__(N=6, alpha=10)
+    def __init__(self, integration_method, N=6, alpha=10):
+        super().__init__(N=N, alpha=alpha, integration_method=integration_method)
 
     def phi(self, x):
         return torch.tensor([x[0] ** 2, x[0] * x[1], x[0] * x[2], x[1] ** 2, x[1] * x[2], x[2] ** 2]).T
@@ -100,4 +102,4 @@ class PowerPlantSystemCritic(Critic):
     def phi_grad(self, x):
         return torch.tensor([[2 * x[0], x[1], x[2], 0, 0, 0],
                              [0, x[0], 0, 2 * x[1], x[2], 0],
-                             [0, 0, x[0], 0, x[1], 2 * x[2]]])
+                             [0, 0, x[0], 0, x[1], 2 * x[2]]]).T
