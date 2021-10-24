@@ -46,12 +46,12 @@ class Environment(object):
         r_s_l = []
         # print(u)
         for u_i in u:
-            v_grid = torch.linspace(0, u_i.item(), 1000)
+            v_grid = torch.linspace(start=0, end=u_i.item(), steps=1000)
             # print(u, u_i, v_grid)
             # print(u_i)
             # print(u_grid)
             theta_grid = self.theta_inv(v_grid) * self.r(v_grid)
-            r_s_l.append(torch.trapz(theta_grid, v_grid))
+            r_s_l.append(torch.trapz(y=theta_grid, x=v_grid))
             # print('r_s', u_grid, theta_grid, r_s_l[-1])
         # print(r_s_l)
         return 2 * sum(r_s_l)
@@ -60,7 +60,7 @@ class Environment(object):
         u = u.clone()
         if t <= 1:
             u += 0.5 * (torch.sin(0.3 * torch.pi * t) + torch.cos(0.3 * torch.pi * t))
-        x_h = odeint(self.RHS(self.f, self.g, u), x, torch.tensor([0., h]), method=self.integration_method)[-1]
+        x_h = odeint(func=self.RHS(f=self.f, g=self.g, u=u), y0=x, t=torch.tensor([0., h]), method=self.integration_method)[-1]
         return x_h
 
     def reset_state(self):
@@ -91,7 +91,7 @@ class VanDerPolOscillator(Environment):
 class PowerPlantSystem(Environment):
     def __init__(self, integration_method, u_max=0.02, T_g=0.08, T_t=0.1, T_p=20,
                  R_g=2.5, K_p=120, K_t=1):
-        super().__init__(integration_method, u_max)
+        super().__init__(integration_method=integration_method, u_max=u_max)
 
         self.T_g = T_g
         self.T_t = T_t

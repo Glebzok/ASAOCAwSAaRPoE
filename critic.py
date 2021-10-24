@@ -56,15 +56,16 @@ class Critic(nn.Module):
         return self.phi_grad(x) @ (env.f(x) + env.g(x) @ u)
 
     def update(self, env, x, u, h):
-        omega_t = self.calc_omega(env, x, u)
+        omega_t = self.calc_omega(env=env, x=x, u=u)
         q_t = env.q(x)
         r_s_t = env.r_s(u)
 
         # print(h)
         # print(omega_t, q_t, r_s_t)
         # print(self.W)
-        self.W = odeint(self.RHS(self.alpha, omega_t, q_t, r_s_t, self.omega, self.q, self.r_s),
-                        self.W, torch.tensor([0., h]), method=self.integration_method)[-1]
+        self.W = odeint(func=self.RHS(alpha=self.alpha, omega_t=omega_t, q_t=q_t, r_s_t=r_s_t,
+                                      omega=self.omega, q=self.q, r_s=self.r_s),
+                        y0=self.W, t=torch.tensor([0., h]), method=self.integration_method)[-1]
 
         return omega_t, q_t, r_s_t
 
@@ -80,8 +81,8 @@ class Critic(nn.Module):
 
 
 class VanDerPolOscillatorCritic(Critic):
-    def __init__(self, integration_method, N=3, alpha=10):
-        super().__init__(N=N, alpha=alpha, integration_method=integration_method)
+    def __init__(self, integration_method, alpha=10):
+        super().__init__(N=3, alpha=alpha, integration_method=integration_method)
         # self.W = torch.tensor([2.4953, 0.9991, 2.2225]).view(-1, 1)
 
     def phi(self, x):
@@ -93,8 +94,8 @@ class VanDerPolOscillatorCritic(Critic):
 
 
 class PowerPlantSystemCritic(Critic):
-    def __init__(self, integration_method, N=6, alpha=10):
-        super().__init__(N=N, alpha=alpha, integration_method=integration_method)
+    def __init__(self, integration_method, alpha=10):
+        super().__init__(N=6, alpha=alpha, integration_method=integration_method)
 
     def phi(self, x):
         return torch.tensor([x[0] ** 2, x[0] * x[1], x[0] * x[2], x[1] ** 2, x[1] * x[2], x[2] ** 2]).T
