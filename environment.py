@@ -40,13 +40,14 @@ class Environment(object):
 
     def theta_inv(self, x):
         # print(x, self.u_max, x / self.u_max, torch.atanh(x / self.u_max))
-        return self.u_max * torch.atanh(x / self.u_max)
+        # print(x / self.u_max, torch.clip(x / self.u_max, -1, 1), torch.atanh(torch.clip(x / self.u_max, -1, 1)), torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), 0, 100))
+        return self.u_max * torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), 0, 100)
 
     def r_s(self, u):
         r_s_l = []
         # print(u)
         for u_i in u:
-            v_grid = torch.linspace(start=0, end=u_i.item(), steps=1000)
+            v_grid = torch.linspace(start=0, end=abs(u_i.item()), steps=1000)
             # print(u, u_i, v_grid)
             # print(u_i)
             # print(u_grid)
@@ -111,7 +112,7 @@ class PowerPlantSystem(Environment):
                              0.]).view(-1, 1)
 
     def q(self, x):
-        return torch.linalg.norm(x.float()).item()
+        return torch.linalg.norm(x.float()).item()**2
 
     def r(self, x):
         return 0.5

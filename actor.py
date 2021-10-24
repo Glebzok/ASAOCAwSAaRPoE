@@ -18,7 +18,7 @@ class Actor(nn.Module):
         super().__init__()
         self.alpha = alpha
         self.integration_method = integration_method
-        self.W = torch.rand((N, m)) #/ 100
+        self.W = torch.rand((N, m))  # / 100
 
     def phi(self, x):
         raise NotImplementedError
@@ -37,18 +37,20 @@ class Actor(nn.Module):
 
 class VanDerPolOscillatorActor(Actor):
     def __init__(self, integration_method, alpha=2):
-        super().__init__(N=3, m=1, alpha=alpha, integration_method=integration_method)
+        super().__init__(N=2, m=1, alpha=alpha, integration_method=integration_method)
 
     def phi(self, x):
         # return torch.tensor([2 * x[0], x[1], x[0], 2 * x[1]]).view(-1, 1)
         # return torch.tensor([x[0], x[1]]).view(-1, 1)
-        return torch.tensor([x[0] ** 2, x[0] * x[1], x[1] ** 2]).view(-1, 1)
+        # return torch.tensor([x[0] ** 2, x[0] * x[1], x[1] ** 2]).view(-1, 1)
+        return torch.tensor([x[0], x[1]]).view(-1, 1)
 
 class PowerPlantSystemActor(Actor):
     def __init__(self, integration_method, alpha=2):
-        super().__init__(N=18, m=1, alpha=alpha, integration_method=integration_method)
+        super().__init__(N=6, m=1, alpha=alpha, integration_method=integration_method)
 
     def phi(self, x):
-        return torch.tensor([[2 * x[0], x[1], x[2], 0, 0, 0],
-                             [0, x[0], 0, 2 * x[1], x[2], 0],
-                             [0, 0, x[0], 0, x[1], 2 * x[2]]]).view(-1, 1)
+        # return torch.tensor([[2 * x[0], x[1], x[2], 0, 0, 0],
+        #                      [0, x[0], 0, 2 * x[1], x[2], 0],
+        #                      [0, 0, x[0], 0, x[1], 2 * x[2]]]).view(-1, 1)
+        return torch.tensor([x[0] ** 2, x[0] * x[1], x[0] * x[2], x[1] ** 2, x[1] * x[2], x[2] ** 2]).view(-1, 1)

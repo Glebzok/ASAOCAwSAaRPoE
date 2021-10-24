@@ -36,7 +36,7 @@ class Critic(nn.Module):
         self.alpha = alpha
         self.N = N
         self.integration_method = integration_method
-        self.W = torch.rand((N, 1))# / 100
+        self.W = torch.rand((N, 1)) #/ 100
         self.omega = []
         self.q = []
         self.r_s = []
