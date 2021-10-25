@@ -15,7 +15,7 @@ class AdaOptControl(object):
         for _ in range(1):
 
             x = self.env.reset_state()
-            x_history, u_history, critic_w_history, q_history, r_s_history = [x.numpy().flatten()], [], [], [], []
+            x_history, u_history, critic_w_history, actor_w_history, q_history, r_s_history = [x.numpy().flatten()], [], [], [], [], []
 
             for t in tqdm(t_grid):
                 # print('i')
@@ -37,15 +37,16 @@ class AdaOptControl(object):
                 # print('critic', self.critic.W)
 
                 critic_w_history.append(self.critic.W.numpy().flatten())
+                actor_w_history.append(self.actor.W.numpy().flatten())
                 q_history.append(q_t)
                 r_s_history.append(r_s_t)
 
                 if not self.critic.is_full:
                     self.critic.update_stack(omega_t=omega_t, q_t=q_t, r_s_t=r_s_t)
 
-            # print(self.critic.W)
-            # print(self.actor.W)
+            print(self.critic.W)
+            print(self.actor.W)
             print(sum(q_history))
             # print(sum(r_s_history))
 
-        return t_grid, np.vstack(x_history), np.vstack(u_history), np.vstack(critic_w_history), q_history, r_s_history
+        return t_grid, np.vstack(x_history), np.vstack(u_history), np.vstack(critic_w_history), np.vstack(actor_w_history), q_history, r_s_history

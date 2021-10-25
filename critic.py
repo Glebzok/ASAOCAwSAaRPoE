@@ -42,6 +42,8 @@ class Critic(nn.Module):
         self.q = []
         self.r_s = []
 
+        self.cnt = 0
+
         self.is_full = False
 
     def phi(self, x):
@@ -59,9 +61,9 @@ class Critic(nn.Module):
     def update(self, env, x, u, h):
         omega_t = self.calc_omega(env=env, x=x, u=u)
         q_t = env.q(x)
-        r_s_t = env.r_s(u)
+        # r_s_t = env.r_s(u)
 
-        # r_s_t = 0
+        r_s_t = 0
         # print(u, q_t, r_s_t)
 
         # print(h)
@@ -74,23 +76,25 @@ class Critic(nn.Module):
         return omega_t, q_t, r_s_t
 
     def update_stack(self, omega_t, q_t, r_s_t):
-        if (len(self.omega) > 0) & (not self.is_full):
-            if torch.matrix_rank(torch.hstack(self.omega)).item() >= self.N:
-                self.is_full = True
-
-        if not self.is_full:
+        # if (len(self.omega) > 0) & (not self.is_full):
+        #     if torch.matrix_rank(torch.hstack(self.omega)).item() >= self.N:
+        #         self.is_full = True
+        #
+        if not self.is_full and (self.cnt % 10 == 0):
             self.omega.append(omega_t)
             self.q.append(q_t)
             self.r_s.append(r_s_t)
+            self.cnt += 1
         #
-        # self.omega.append(omega_t)
-        # self.q.append(q_t)
-        # self.r_s.append(r_s_t)
+        self.omega.append(omega_t)
+        self.q.append(q_t)
+        self.r_s.append(r_s_t)
         #
-        # if len(self.omega) >= 3:
-        #     self.omega = self.omega[1:]
-        #     self.q = self.q[1:]
-        #     self.r_s = self.r_s[1:]
+        if len(self.omega) >= 10:
+            # self.omega = self.omega[1:]
+            # self.q = self.q[1:]
+            # self.r_s = self.r_s[1:]
+            self.is_full = True
 
         # pass
 

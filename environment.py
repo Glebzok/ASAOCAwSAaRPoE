@@ -79,10 +79,10 @@ class VanDerPolOscillator(Environment):
 
     def f(self, x):
         return torch.tensor([x[1],
-                             -x[0] - 0.5 * x[1] * (1 - x[0]**2) - x[0]**2 * x[1]]).view(-1, 1)
+                             -x[0] - 0.5 * x[1] * (1 - x[0]**2) - x[0]**2 * x[1]]).clone().view(-1, 1)
 
     def g(self, x):
-        return torch.tensor([0, x[0]]).view(-1, 1)
+        return torch.tensor([0, x[0]]).clone().view(-1, 1)
 
     def q(self, x):
         return torch.linalg.norm(x.float()).item()**2
