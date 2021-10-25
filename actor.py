@@ -18,7 +18,7 @@ class Actor(nn.Module):
         super().__init__()
         self.alpha = alpha
         self.integration_method = integration_method
-        self.W = torch.rand((N, m))  # / 100
+        self.W = torch.rand((N, m)) #/ 10
 
     def phi(self, x):
         raise NotImplementedError
@@ -31,19 +31,22 @@ class Actor(nn.Module):
         theta = env.theta(0.5 * 1 / env.r(x) * env.g(x).T @ critic.phi_grad(x).T @ critic.W)
         phi_u = self.phi(x)
 
+        # print(theta, phi_u)
+
         self.W = odeint(func=self.RHS(alpha=self.alpha, phi_u=phi_u, theta=theta),
                         y0=self.W, t=torch.tensor([0., h]), method=self.integration_method)[-1]
 
 
 class VanDerPolOscillatorActor(Actor):
     def __init__(self, integration_method, alpha=2):
-        super().__init__(N=2, m=1, alpha=alpha, integration_method=integration_method)
+        super().__init__(N=3, m=1, alpha=alpha, integration_method=integration_method)
+        # self.W = torch.tensor([0., -1., 0.]).view(-1, 1)
 
     def phi(self, x):
         # return torch.tensor([2 * x[0], x[1], x[0], 2 * x[1]]).view(-1, 1)
         # return torch.tensor([x[0], x[1]]).view(-1, 1)
-        # return torch.tensor([x[0] ** 2, x[0] * x[1], x[1] ** 2]).view(-1, 1)
-        return torch.tensor([x[0], x[1]]).view(-1, 1)
+        return torch.tensor([x[0] ** 2, x[0] * x[1], x[1] ** 2]).view(-1, 1)
+        # return torch.tensor([x[0], x[1]]).view(-1, 1)
 
 class PowerPlantSystemActor(Actor):
     def __init__(self, integration_method, alpha=2):

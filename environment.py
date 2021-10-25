@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torchdiffeq import odeint_adjoint as odeint
+from math import pi
 
 
 class Environment(object):
@@ -37,21 +38,25 @@ class Environment(object):
 
     def theta(self, x):
         return self.u_max * torch.tanh(x / self.u_max)
+        # return self.u_max * (2. / (1 + torch.exp(-x / self.u_max)) - 1)
 
     def theta_inv(self, x):
         # print(x, self.u_max, x / self.u_max, torch.atanh(x / self.u_max))
         # print(x / self.u_max, torch.clip(x / self.u_max, -1, 1), torch.atanh(torch.clip(x / self.u_max, -1, 1)), torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), 0, 100))
-        return self.u_max * torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), 0, 100)
+        # return self.u_max * torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), -10, 10)
+        return self.u_max * torch.atanh(x / self.u_max)
+        # return -self.u_max * torch.log(2 / (x / self.u_max + 1) - 1)
 
     def r_s(self, u):
         r_s_l = []
         # print(u)
         for u_i in u:
-            v_grid = torch.linspace(start=0, end=abs(u_i.item()), steps=1000)
+            v_grid = torch.linspace(start=0, end=abs(u_i.item()), steps=100)
             # print(u, u_i, v_grid)
             # print(u_i)
             # print(u_grid)
             theta_grid = self.theta_inv(v_grid) * self.r(v_grid)
+            # print(u_i, v_grid[0], theta_grid[0], theta_grid.max())
             r_s_l.append(torch.trapz(y=theta_grid, x=v_grid))
             # print('r_s', u_grid, theta_grid, r_s_l[-1])
         # print(r_s_l)
@@ -60,7 +65,7 @@ class Environment(object):
     def propagate(self, x, u, t, h):
         u = u.clone()
         if t <= 1:
-            u += 0.5 * (torch.sin(0.3 * torch.pi * t) + torch.cos(0.3 * torch.pi * t))
+            u += 0.5 * (torch.sin(0.3 * pi * t) + torch.cos(0.3 * pi * t))
         x_h = odeint(func=self.RHS(f=self.f, g=self.g, u=u), y0=x, t=torch.tensor([0., h]), method=self.integration_method)[-1]
         return x_h
 
@@ -118,4 +123,4 @@ class PowerPlantSystem(Environment):
         return 0.5
 
     def reset_state(self):
-        return torch.tensor([0., 0., 0.]).view(-1, 1)
+        return torch.tensor([0., 0.07, 0.05]).view(-1, 1)

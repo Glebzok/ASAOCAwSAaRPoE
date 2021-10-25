@@ -23,9 +23,10 @@ class Critic(nn.Module):
             # print('w', W_dot)
 
             for omega_i, q_i, r_s_i in zip(self.omega, self.q, self.r_s):
-                W_dot -= self.alpha \
-                         * (omega_i @ (omega_i.T @ W + q_i + r_s_i)) \
-                         / (omega_i.T @ omega_i + 1) ** 2
+                W_dot = W_dot \
+                        - self.alpha \
+                        * (omega_i @ (omega_i.T @ W + q_i + r_s_i)) \
+                        / (omega_i.T @ omega_i + 1) ** 2
 
             # print('w', W_dot)
 
@@ -36,7 +37,7 @@ class Critic(nn.Module):
         self.alpha = alpha
         self.N = N
         self.integration_method = integration_method
-        self.W = torch.rand((N, 1)) #/ 100
+        self.W = torch.rand((N, 1))
         self.omega = []
         self.q = []
         self.r_s = []
@@ -60,6 +61,9 @@ class Critic(nn.Module):
         q_t = env.q(x)
         r_s_t = env.r_s(u)
 
+        # r_s_t = 0
+        # print(u, q_t, r_s_t)
+
         # print(h)
         # print(omega_t, q_t, r_s_t)
         # print(self.W)
@@ -78,6 +82,17 @@ class Critic(nn.Module):
             self.omega.append(omega_t)
             self.q.append(q_t)
             self.r_s.append(r_s_t)
+        #
+        # self.omega.append(omega_t)
+        # self.q.append(q_t)
+        # self.r_s.append(r_s_t)
+        #
+        # if len(self.omega) >= 3:
+        #     self.omega = self.omega[1:]
+        #     self.q = self.q[1:]
+        #     self.r_s = self.r_s[1:]
+
+        # pass
 
 
 class VanDerPolOscillatorCritic(Critic):
