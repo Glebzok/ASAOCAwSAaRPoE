@@ -67,8 +67,8 @@ class Environment(object):
         if t <= 1:
             u += 0.5 * (torch.sin(0.3 * pi * t) + torch.cos(0.3 * pi * t))
         x_h = odeint(func=self.RHS(f=self.f, g=self.g, u=u), y0=x, t=torch.tensor([0., h]), method=self.integration_method)[-1]
-        # if 7 <= t <= 11:
-        #     x_h[2] = torch.minimum(torch.tensor(0.2), x_h[2]+0.05)
+        if 7 <= t <= 11:
+            x_h[2] = torch.minimum(torch.tensor(1.5), x_h[2]*1.5)
         return x_h
 
     def reset_state(self):
@@ -95,10 +95,19 @@ class VanDerPolOscillator(Environment):
     def reset_state(self):
         return torch.tensor([1., -1.]).view(-1, 1)
 
+    def propagate(self, x, u, t, h):
+        u = u.clone()
+        if t <= 1:
+            u += 0.5 * (torch.sin(0.3 * pi * t) + torch.cos(0.3 * pi * t))
+        x_h = odeint(func=self.RHS(f=self.f, g=self.g, u=u), y0=x, t=torch.tensor([0., h]), method=self.integration_method)[-1]
+        if 7 <= t <= 11:
+            x_h[2] = torch.minimum(torch.tensor(1.5), x_h[2]*1.5)
+        return x_h
+
 
 class PowerPlantSystem(Environment):
-    def __init__(self, integration_method, u_max=0.02, T_g=0.08, T_t=0.1, T_p=20,
-                 R_g=2.5, K_p=120, K_t=1):
+    def __init__(self, integration_method, u_max=0.02, T_g=0.08, T_t=0.1, T_p=20.,
+                 R_g=2.5, K_p=120., K_t=1.):
         super().__init__(integration_method=integration_method, u_max=u_max)
 
         self.T_g = T_g
@@ -119,10 +128,11 @@ class PowerPlantSystem(Environment):
                              0.]).view(-1, 1)
 
     def q(self, x):
-        return torch.linalg.norm(x.float()).item()**2
+        return torch.linalg.norm(x).item()**2
 
     def r(self, x):
         return 0.5
 
     def reset_state(self):
-        return torch.tensor([0., 0.07, 0.05]).view(-1, 1)
+        return torch.tensor([0., 0.1, 0.05]).view(-1, 1)
+        # return torch.tensor([0., 0., 0.]).view(-1,        1)

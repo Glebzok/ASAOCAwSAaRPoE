@@ -18,7 +18,7 @@ class Actor(nn.Module):
         super().__init__()
         self.alpha = alpha
         self.integration_method = integration_method
-        self.W = torch.rand((N, m)) / 10
+        self.W = torch.rand((N, m)) / 100
 
     def phi(self, x):
         raise NotImplementedError

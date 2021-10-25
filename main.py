@@ -21,8 +21,8 @@ if __name__ == '__main__':
     # POLICY = 'Zero'
     # POLICY = 'Optimal'
 
-    # ENV = 'VanDerPolOscillator'
-    ENV = 'PowerPlantSystem'
+    ENV = 'VanDerPolOscillator'
+    # ENV = 'PowerPlantSystem'
 
     if ENV == 'VanDerPolOscillator':
 
@@ -34,11 +34,11 @@ if __name__ == '__main__':
 
     else:
 
-        env = PowerPlantSystem(integration_method, u_max=0.02)
+        env = PowerPlantSystem(integration_method, u_max=1)
         actor = PowerPlantSystemActor(integration_method, alpha=20)
         critic = PowerPlantSystemCritic(integration_method, alpha=20)
 
-        T = 10
+        T = 30
 
     t, x_history, u_history, critic_w_history, actor_w_history, q_history, r_s_story \
         = AdaOptControl(env, actor, critic).propagate(t_min=0, t_max=T, h=0.1, policy=POLICY)
