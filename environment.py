@@ -43,8 +43,8 @@ class Environment(object):
     def theta_inv(self, x):
         # print(x, self.u_max, x / self.u_max, torch.atanh(x / self.u_max))
         # print(x / self.u_max, torch.clip(x / self.u_max, -1, 1), torch.atanh(torch.clip(x / self.u_max, -1, 1)), torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), 0, 100))
-        # return self.u_max * torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), -10, 10)
-        return self.u_max * torch.atanh(x / self.u_max)
+        return self.u_max * torch.clip(torch.atanh(torch.clip(x / self.u_max, -1, 1)), -10, 10)
+        # return self.u_max * torch.atanh(x / self.u_max)
         # return -self.u_max * torch.log(2 / (x / self.u_max + 1) - 1)
 
     def r_s(self, u):
@@ -67,6 +67,8 @@ class Environment(object):
         if t <= 1:
             u += 0.5 * (torch.sin(0.3 * pi * t) + torch.cos(0.3 * pi * t))
         x_h = odeint(func=self.RHS(f=self.f, g=self.g, u=u), y0=x, t=torch.tensor([0., h]), method=self.integration_method)[-1]
+        # if 7 <= t <= 11:
+        #     x_h[2] = torch.minimum(torch.tensor(0.2), x_h[2]+0.05)
         return x_h
 
     def reset_state(self):
@@ -79,13 +81,13 @@ class VanDerPolOscillator(Environment):
 
     def f(self, x):
         return torch.tensor([x[1],
-                             -x[0] - 0.5 * x[1] * (1 - x[0]**2) - x[0]**2 * x[1]]).clone().view(-1, 1)
+                             -x[0] - 0.5 * x[1] * (1 - x[0]**2) - x[0]**2 * x[1]]).view(-1, 1)
 
     def g(self, x):
-        return torch.tensor([0, x[0]]).clone().view(-1, 1)
+        return torch.tensor([0, x[0]]).view(-1, 1)
 
     def q(self, x):
-        return torch.linalg.norm(x.float()).item()**2
+        return torch.linalg.norm(x).item()**2
 
     def r(self, x):
         return 1

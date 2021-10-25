@@ -61,9 +61,9 @@ class Critic(nn.Module):
     def update(self, env, x, u, h):
         omega_t = self.calc_omega(env=env, x=x, u=u)
         q_t = env.q(x)
-        # r_s_t = env.r_s(u)
+        r_s_t = env.r_s(u)
 
-        r_s_t = 0
+        # r_s_t = 0
         # print(u, q_t, r_s_t)
 
         # print(h)
@@ -84,13 +84,15 @@ class Critic(nn.Module):
             self.omega.append(omega_t)
             self.q.append(q_t)
             self.r_s.append(r_s_t)
-            self.cnt += 1
+
+        self.cnt += 1
+        # print(self.cnt, self.cnt % 10, len(self.omega))
         #
-        self.omega.append(omega_t)
-        self.q.append(q_t)
-        self.r_s.append(r_s_t)
+        # self.omega.append(omega_t)
+        # self.q.append(q_t)
+        # self.r_s.append(r_s_t)
         #
-        if len(self.omega) >= 10:
+        if len(self.omega) >= 3:
             # self.omega = self.omega[1:]
             # self.q = self.q[1:]
             # self.r_s = self.r_s[1:]

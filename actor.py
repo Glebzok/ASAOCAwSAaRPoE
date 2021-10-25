@@ -28,8 +28,8 @@ class Actor(nn.Module):
         return self.W.T @ self.phi(x)
 
     def update(self, x, env, critic, h):
-        # theta = env.theta(0.5 * 1 / env.r(x) * env.g(x).T @ critic.phi_grad(x).T @ critic.W)
-        theta = env.g(x).T @ critic.phi_grad(x).T @ critic.W
+        theta = env.theta(0.5 * 1 / env.r(x) * env.g(x).T @ critic.phi_grad(x).T @ critic.W)
+        # theta = env.g(x).T @ critic.phi_grad(x).T @ critic.W
         phi_u = self.phi(x)
 
         # print(theta, phi_u)
