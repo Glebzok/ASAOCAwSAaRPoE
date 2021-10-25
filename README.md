@@ -13,9 +13,9 @@ Our video-presentation can be found [here]().
 **Policy** |       **Zero policy**             |  **Optimal policy**   |   **Adaptive policy***
 :------------------------:|:-------------------------:|:-------------------------:|:--------------------------:|
 **Van der Pol Oscillator Reward** |  **179** |  **134** | **169**
-**Van der Pol Oscillator Results** | <img src="./img/VanDerPolOscillator_zero.png" width="200" />  |  <img src="img/VanDerPolOscillator_optimal.png" /> | ![](img/VanDerPolOscillator_adaptive.png) width=50% }
+**Van der Pol Oscillator Results** | <img src="./img/VanDerPolOscillator_zero.png" width="400" />  |  <img src="img/VanDerPolOscillator_optimal.png" width="400"/> | <img src="./img/VanDerPolOscillator_adaptive.png" width="400"/>
 **Power Plant System Reward** | **Diverges** | **Not known** | **125**
-**Power Plant System Results** |  |   | ![](img/PowerPlantSystem_adaptive.png)
+**Power Plant System Results** |  |   | <img src="./img/PowerPlantSystem_adaptive.png" width="400" />
 
 ## Repository structure
 
