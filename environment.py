@@ -67,8 +67,6 @@ class Environment(object):
         if t <= 1:
             u += 0.5 * (torch.sin(0.3 * pi * t) + torch.cos(0.3 * pi * t))
         x_h = odeint(func=self.RHS(f=self.f, g=self.g, u=u), y0=x, t=torch.tensor([0., h]), method=self.integration_method)[-1]
-        if 7 <= t <= 11:
-            x_h[2] = torch.minimum(torch.tensor(1.5), x_h[2]*1.5)
         return x_h
 
     def reset_state(self):
@@ -94,15 +92,6 @@ class VanDerPolOscillator(Environment):
 
     def reset_state(self):
         return torch.tensor([1., -1.]).view(-1, 1)
-
-    def propagate(self, x, u, t, h):
-        u = u.clone()
-        if t <= 1:
-            u += 0.5 * (torch.sin(0.3 * pi * t) + torch.cos(0.3 * pi * t))
-        x_h = odeint(func=self.RHS(f=self.f, g=self.g, u=u), y0=x, t=torch.tensor([0., h]), method=self.integration_method)[-1]
-        if 7 <= t <= 11:
-            x_h[2] = torch.minimum(torch.tensor(1.5), x_h[2]*1.5)
-        return x_h
 
 
 class PowerPlantSystem(Environment):
@@ -136,3 +125,9 @@ class PowerPlantSystem(Environment):
     def reset_state(self):
         return torch.tensor([0., 0.1, 0.05]).view(-1, 1)
         # return torch.tensor([0., 0., 0.]).view(-1,        1)
+
+    def propagate(self, x, u, t, h):
+        x_h = super().propagate(x=x, u=u, t=t, h=h)
+        if 7 <= t <= 11:
+            x_h[2] = torch.minimum(torch.tensor(1.5), x_h[2]*1.5)
+        return x_h

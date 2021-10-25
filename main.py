@@ -15,33 +15,38 @@ np.random.seed(RANDOM_SEED)
 
 
 if __name__ == '__main__':
-    integration_method = 'dopri5'
-    # integration_method = 'rk4'
+
     POLICY = 'Adaptive'
     # POLICY = 'Zero'
     # POLICY = 'Optimal'
 
-    ENV = 'VanDerPolOscillator'
-    # ENV = 'PowerPlantSystem'
+    # ENV = 'VanDerPolOscillator'
+    ENV = 'PowerPlantSystem'
 
     if ENV == 'VanDerPolOscillator':
+        integration_method = 'rk4'
 
         env = VanDerPolOscillator(integration_method, u_max=0.1)
         actor = VanDerPolOscillatorActor(integration_method, alpha=20)
         critic = VanDerPolOscillatorCritic(integration_method, alpha=20)
 
         T = 20
+        h = 0.01
+
 
     else:
+        integration_method = 'dopri5'
+        # integration_method = 'rk4'
 
         env = PowerPlantSystem(integration_method, u_max=1)
         actor = PowerPlantSystemActor(integration_method, alpha=20)
         critic = PowerPlantSystemCritic(integration_method, alpha=20)
 
         T = 30
+        h = 0.1
 
     t, x_history, u_history, critic_w_history, actor_w_history, q_history, r_s_story \
-        = AdaOptControl(env, actor, critic).propagate(t_min=0, t_max=T, h=0.1, policy=POLICY)
+        = AdaOptControl(env, actor, critic).propagate(t_min=0, t_max=T, h=h, policy=POLICY)
 
     plt.rcParams.update({'font.size': 22})
 
@@ -82,16 +87,41 @@ if __name__ == '__main__':
         ax[5].set_ylabel('$R_s$')
 
     else:
-        fig, ax = plt.subplots(7, 1, figsize=(15, 35))
+        fig, ax = plt.subplots(8, 1, figsize=(15, 40))
         ax[0].plot(t, x_history[1:, 0])
+        ax[0].grid()
+        ax[0].set_ylabel('$Δ α$')
+
         ax[1].plot(t, x_history[1:, 1])
+        ax[1].grid()
+        ax[1].set_ylabel('$Δ P_m$')
+
         ax[2].plot(t, x_history[1:, 2])
+        ax[2].grid()
+        ax[2].set_ylabel('$Δ f_G$')
+        ax[2].set_xlabel('Time(s)')
+
         ax[3].plot(t, u_history)
         ax[3].plot(t, env.u_max * torch.ones_like(t), ls='--', c='r')
         ax[3].plot(t, -env.u_max * torch.ones_like(t), ls='--', c='r')
+        ax[3].set_ylabel('u')
+        ax[3].set_xlabel('Time(s)')
+
         ax[4].plot(t, critic_w_history)
-        ax[5].plot(t, q_history)
-        ax[6].plot(t, r_s_story)
+        ax[4].set_xlabel('Time(s)')
+        ax[4].set_ylabel('NN critic Parameters')
+
+        ax[5].plot(t, actor_w_history)
+        ax[5].set_xlabel('Time(s)')
+        ax[5].set_ylabel('NN actor Parameters')
+
+        ax[6].plot(t, q_history)
+        ax[6].set_xlabel('Time(s)')
+        ax[6].set_ylabel('Q')
+
+        ax[7].plot(t, r_s_story)
+        ax[7].set_xlabel('Time(s)')
+        ax[7].set_ylabel('$R_s$')
 
     plt.tight_layout()
     fig.show()
