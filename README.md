@@ -6,7 +6,7 @@ We have implemented the algorithm and tested its performance on two environments
 * Van der Pol Oscillator
 * Power Plant System
 
-Our video-presentation can be found [here]().
+Our video-presentation can be found [here](https://www.youtube.com/watch?v=tzMqVoZKgzA).
 
 ## Results
 
